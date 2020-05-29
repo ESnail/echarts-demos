@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width: 600px;height:90vh;"></div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script> -->
+  <script src="../lib/echarts.min.js"></script>
+
+  <script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = setOption();
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function setOption() {
+      let option;
+
+      // https://echarts.apache.org/examples/zh/editor.html?c=bar-background
+      let originData = [6647, 7473, 8190, 8488, 9491, 11726, 12745, 13170, 21319, 24934];
+      let titleOriginData = ['南坪', '工贸', '石桥铺', '沙坪坝', '嘉州路', '红旗河沟', '两路口', '观音桥', '光电园', '小什字'];
+
+      const len = 9;
+      originData.length = len;
+      titleOriginData.length = len;
+
+      function arrPercent(arr) {
+        let res = [];
+        for (let i = 1; i < arr.length; i++) {
+          const rate = arr[i - 1] / arr[i] * 100
+          res.push(rate.toFixed(2))
+        }
+        return res;
+      }
+
+      let rateData = arrPercent(originData)
+      let emptyData = rateData.map((v, i) => {
+        let color = 'pink';
+        let item = {
+          value: 0,
+          label: {
+            formatter: '{a|' + v + '%}',
+          }
+        }
+        return item
+      })
+
+      let zeroData = Array(originData.length).fill(0)
+
+
+      option = {
+        backgroundColor: '#0e2147',
+        grid: {
+          left: '25%',
+          top: '12%',
+          right: '25%',
+          bottom: '8%',
+          containLabel: true
+        },
+        xAxis: [{
+          show: false,
+        }],
+        yAxis: [{
+            axisTick: 'none',
+            axisLine: 'none',
+            offset: '27',
+            axisLabel: {
+              textStyle: {
+                color: '#ffffff',
+                fontSize: '16',
+              }
+            },
+            data: titleOriginData
+          },
+          {
+            axisTick: 'none',
+            axisLine: 'none',
+            axisLabel: {
+              textStyle: {
+                color: 'red',
+                fontSize: '0',
+              }
+            },
+            data: [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+          },
+          {
+            name: '工作地TOP 10',
+            nameGap: '30',
+            nameTextStyle: {
+              color: '#ffffff',
+              fontSize: '30',
+            },
+            axisLine: {
+              lineStyle: {
+                color: 'rgba(0,0,0,0)'
+              }
+            },
+            data: [],
+          }
+        ],
+        series: [{
+            name: '条',
+            type: 'bar',
+            yAxisIndex: 0,
+            data: originData,
+            label: {
+              normal: {
+                show: true,
+                position: 'right',
+                textStyle: {
+                  color: '#ffffff',
+                  fontSize: '16',
+                }
+              }
+            },
+            // barWidth: 12,
+            // barGap : '90%',
+            barCategoryGap: 40,
+            // barGap: 1000,
+            itemStyle: {
+              normal: {
+                color: 'dodgerblue'
+              }
+            },
+            z: 0
+          },
+          {
+            name: '外框',
+            type: 'bar',
+            yAxisIndex: 2,
+            barGap: '-100%',
+            data: zeroData,
+            z: 1
+          },
+          {
+            name: '外圆',
+            type: 'scatter',
+            symbol: 'triangle', //'arrow',
+            symbolRotate: 180,
+            hoverAnimation: false,
+            data: emptyData,
+            yAxisIndex: 2,
+            symbolSize: 30,
+            symbolOffset: [40, '-90%'],
+
+            label: {
+              show: true,
+              // position: 'top',
+              // offset: [0, 0],
+              padding: [-5, 0, 0, 0],
+              formatter: '{a| {c}%}',
+              rich: {
+                a: {
+                  align: 'center',
+                  color: '#000',
+                  backgroundColor: '#ddd',
+                  height: 25,
+                  fontSize: 12,
+                  padding: [0, 5],
+                },
+              }
+            },
+            itemStyle: {
+              normal: {
+                color: '#ddd',
+                opacity: 1,
+              }
+            },
+            z: 2
+          }
+        ]
+      };
+
+      return option;
+    }
+  </script>
+</body>
+
+</html>

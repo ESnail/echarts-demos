@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width: 600px;height:90vh;"></div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script> -->
+  <script src="../lib/echarts.min.js"></script>
+
+  <script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = setOption();
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function setOption() {
+      let option;
+
+      // echarts 原地址 https://gallery.echartsjs.com/editor.html?c=x0ou4zifid
+      option = {
+        backgroundColor: '#0e202d',
+        "grid": {
+          "top": "15%",
+          "left": "15%",
+          "bottom": "10%",
+          "right": "10%",
+          "containLabel": true
+        },
+        "xAxis": [{
+          "type": "category",
+          "data": ["累计", "当月"],
+          "axisTick": {
+            "alignWithLabel": true
+          },
+          "nameTextStyle": {
+            "color": "#82b0ec"
+          },
+          "axisLine": {
+            "lineStyle": {
+              "color": "#82b0ec"
+            }
+          },
+          "axisLabel": {
+            "textStyle": {
+              "color": "#82b0ec"
+            }
+          }
+        }],
+        "yAxis": [{
+          "type": "value",
+          "axisLabel": {
+            "textStyle": {
+              "color": "#82b0ec"
+            },
+            "formatter": "{value}%"
+          },
+          "splitLine": {
+            "lineStyle": {
+              "color": "#0c2c5a"
+            }
+          },
+          "axisLine": {
+            "show": false
+          }
+        }],
+        "series": [{
+            "name": "",
+            type: 'pictorialBar',
+            symbolSize: [60, 16],
+            symbolOffset: [0, -10],
+            symbolPosition: 'end',
+            z: 12,
+            //"barWidth": "20",
+            "label": {
+              "normal": {
+                "show": true,
+                "position": "top",
+                "formatter": "{c}%"
+              }
+            },
+            "data": [{
+              "value": 100,
+              "itemStyle": {
+                "color": "#59cb42"
+              }
+            }, {
+              "value": 55.559999999999995,
+              "itemStyle": {
+                "color": "#3cefff"
+              }
+            }]
+          },
+          {
+            name: '',
+            type: 'pictorialBar',
+            symbolSize: [60, 16],
+            symbolOffset: [0, 10],
+            // "barWidth": "20",
+            z: 12,
+            "data": [{
+              "value": 100,
+              "itemStyle": {
+                "color": "#59cb42"
+              }
+            }, {
+              "value": 55.559999999999995,
+              "itemStyle": {
+                "color": "#3cefff"
+              }
+            }]
+          },
+          {
+            name: '',
+            type: 'pictorialBar',
+            symbolSize: [90, 30],
+            symbolOffset: [0, 20],
+            z: 10,
+            itemStyle: {
+              normal: {
+                color: 'transparent',
+                borderColor: '#14b1eb',
+                borderType: 'dashed',
+                borderWidth: 5
+              }
+            },
+            data: [100, 55.559999999999995]
+          },
+          {
+            type: 'bar',
+            itemStyle: {
+              normal: {
+                //color: '#14b1eb',
+                opacity: .7
+              }
+            },
+            //silent: true,
+            "barWidth": "60",
+            //barGap: '-100%', // Make series be overlap
+            "data": [{
+              "value": 100,
+              "itemStyle": {
+                "color": "#59cb42"
+              }
+            }, {
+              "value": 55.559999999999995,
+              "itemStyle": {
+                "color": "#3cefff"
+              }
+            }],
+            markLine: {
+              //  	symbol:'',
+              lineStyle: {
+                opacity: 0
+              },
+              hoverAnimation: false,
+              // data: [1, 2, 3, 4, 300],
+              xAxisIndex: 2,
+              label: {
+                position: "middle",
+                // formatter:'{b}'
+                offset: [-9, 0],
+                formatter: '{a|{c}%}',
+                // formatter: '{a|{a}\n}{b|{b} }{c|{c}}',
+                rich: {
+                  a: {
+                    align: 'center',
+                    color: '#000',
+                    width: 30,
+                    height: 40,
+                    backgroundColor: 'pink', // 图片地址
+                    fontSize: 12,
+                    // padding: [15, 2, 13, 2]
+                  }
+                }
+              },
+              data: [{
+                name: "1%",
+                yAxis: 20, //res.targetTwo,
+                lineStyle: {
+                  color: "pink"
+                },
+              }, ]
+            }
+
+          }
+
+
+        ]
+      }
+
+      return option;
+    }
+  </script>
+</body>
+
+</html>

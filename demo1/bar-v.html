@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width: 600px;height:400px;"></div>
+
+  <img id="svg" src="./arrow-v.svg" alt="" style="opacity: 0;">
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script> -->
+  <script src="../lib/echarts.min.js"></script>
+
+  <script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = setOption();
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function setOption() {
+      let option;
+
+      let title = ['周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周一', '下周二'];
+      let data = [200, 170, 240, 244, 200, 220, 210, 20, 30];
+
+      const len = 5
+      title.length = len;
+      data.length = len;
+
+      function arrPercent(arr) {
+        let res = [];
+        let newArr = arr;
+        for (let i = 1; i < newArr.length; i++) {
+          const rate = newArr[i - 1] / newArr[i] * 100
+          res.push(rate.toFixed(2))
+        }
+        return res;
+      }
+
+      let rateData = arrPercent(data);
+      let rate = rateData.map((v, i) => {
+        let item = {
+          value: 0,
+          label: {
+            show: true,
+            formatter: '{a|' + v + '%}',
+          }
+        }
+        return item
+      })
+
+      option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          }
+        },
+        legend: {
+          data: ['利润']
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        yAxis: [{
+          type: 'value'
+        }],
+        xAxis: [{
+          type: 'category',
+          axisTick: {
+            show: false
+          },
+          data: title
+        }],
+        series: [{
+            name: '利润',
+            type: 'bar',
+            barCategoryGap: 80,
+            label: {
+              show: true,
+              position: 'inside'
+            },
+            itemStyle: {
+              color: '#6b96f3'
+            },
+            data: data
+          },
+          {
+            name: '',
+            type: 'bar',
+            barGap: '-100%',
+            label: {
+              position: 'right',
+              offset: [2, -50],
+              formatter: '{a| {c}%}',
+              rich: {
+                a: {
+                  align: 'center',
+                  color: '#000',
+                  backgroundColor: {
+                    // image: 'https://csdnimg.cn/public/common/toolbar/images/collectionicon.png',
+                    image: './arrow-v.svg',
+                    // image: document.getElementById('svg')
+                  },
+                  height: 40,
+                  width: 65,
+                  fontSize: 12,
+                  padding: [0,0],
+                },
+              }
+            },
+            data: rate,
+            z: 2
+          }
+        ]
+      };
+
+      return option;
+    }
+  </script>
+</body>
+
+</html>
