@@ -8,9 +8,13 @@
 
 两张图。没有再多了...
 
-柱状图：![image](./screen/need-v.png)
+柱状图：
 
-条形图：![image](./screen/need-h.png)
+<img src="./screen/need-v.png" width="200"/>
+
+条形图：
+
+<img src="./screen/need-h.png" width="200"/>
 
 ## 探索一
 
@@ -18,7 +22,7 @@
 
 输入关键字：echarts 柱状图 转换率
 
-![image](./screen/baidu-search-res.png)
+<img src="./screen/baidu-search-res.png" width="200"/>
 
 打开第一篇的结果：[echarts实现漏斗转化率图表效果](https://www.cnblogs.com/caihe/p/5945223.html)
 
@@ -48,13 +52,20 @@
 
 可借鉴案例(最终用到的，其实还看了更多呢):
 1. case1: [工作地top10](https://gallery.echartsjs.com/editor.html?c=xAFYsB3sA4)，借鉴地方：条形图，右侧圆，更改形状、位置等
-![case1](./screen/case1.png)
+
+    <img src="./screen/case1.png" width="200" />
+
 2. case2: [温度计柱状图](https://gallery.echartsjs.com/editor.html?c=xUhUlij0j)，借鉴地方：柱状图，底部圆，更改形状、位置等
-![case2](./screen/case2.png)
+
+    <img src="./screen/case2.png" width="200" />
+
 3. case3: [立体柱状图](https://gallery.echartsjs.com/editor.html?c=x0ou4zifid)，借鉴地方：柱状图，目标值，柱子中间问题解决了，只需改形状
-![case3](./screen/case3.png)
+
+    <img src="./screen/case3.png" width="200" />
+
 4. case4: [柱形图排名](https://gallery.echartsjs.com/editor.html?c=xc_zUKnqQO)，借鉴地方：没看到可借鉴地方，猜想可能有用就留着了，后面其实帮大忙了
-![case4](./screen/case4.png)
+
+    <img src="./screen/case4.png" width="200" />
 
 ## 探索三
 
@@ -66,24 +77,27 @@ case1, cas2 是实现思路是一样的，只是方向不一样。都是基于 s
 
 由于之前看到 symbol 支持三角形，想到个思路，箭头可以用三角形和矩形绘制而成。
 
-![case](./screen/transform1.png)
+<img src="./screen/transform1.png" width="200"/>
 
-![case](./screen/transform2.png)
+<img src="./screen/transform2.png" width="200"/>
 
 看了结果，是不是很接近需求了，可以采用了。
 
 答案是否定的。
 
-- 失败
+失败案例：
 
 因素：增加了数据项
-![case](./screen/transform-fail1.png)
-![case](./screen/transform-fail2.png)
+
+<img src="./screen/transform-fail1.png" width="200"/>
+<img src="./screen/transform-fail2.png" width="200"/>
+
 因为位置是相对柱子而言的，并不能准确的保证在柱子中间。可能改的位置不对😑
 
-
 因素：更改了数据项的值
-![case](./screen/transform-fail11.png)
+
+<img src="./screen/transform-fail11.png" width="200"/>
+
 因为比例有大小，而值会根据坐标轴定位
 
 
@@ -93,7 +107,7 @@ case1, cas2 是实现思路是一样的，只是方向不一样。都是基于 s
 
 case3 是用 series 的 标注线实现的。
 
-![case](./screen/transform3.png)
+<img src="./screen/transform3.png" width="200"/>
 
 堪称很完美了，还有动画呢。
 
@@ -103,10 +117,11 @@ case3 是用 series 的 标注线实现的。
 
 答案依旧是否定的。
 
-- 失败
+失败案例：
 
 因素：增加了数据项
-![case](./screen/transform-fail3.png)
+
+<img src="./screen/transform-fail3.png" width="200"/>
 
 因为每条标注线只能有一个 label 值。其实如果数据项只有两项，这样实现还是可以的呢。
 
@@ -114,7 +129,7 @@ case3 是用 series 的 标注线实现的。
 
 case 4 还没看呢。简单看看吧，说不定有发现。
 
-![case](./screen/transform4.png)
+<img src="./screen/transform4.png" width="200"/>
 
 结果真有发现呢，值是不同的，但是图形距离轴的距离是相等的，可借鉴呢。
 
@@ -132,15 +147,15 @@ case 4 还没看呢。简单看看吧，说不定有发现。
 
 那么动手吧。
 
-![case](./screen/bar-h.png)
+<img src="./screen/bar-h.png" width="200"/>
 
-![case](./screen/bar-v.png)
+<img src="./screen/bar-v.png" width="200"/>
 
 更改数据项长度或值大小，相比于前面都能正常显示，可以说 90% 了（毕竟没有完美的）。
 
-![case](./screen/bar-h1.png)
+<img src="./screen/bar-h1.png" width="200"/>
 
-![case](./screen/bar-v1.png)
+<img src="./screen/bar-v1.png" width="200"/>
 
 至于如何再完美一些呢，举例：
 1. 如果数据项特别多，可以考虑用条形图，动态计算根据数据项的多少调整容器的高度，内滚动，外固定，不打破页面布局。
@@ -220,18 +235,17 @@ let rate = rateData.map((v, i) => {
 
 实践代码哦 😯
 
+含很多调试代码（还请别犯强迫症，别介意）
+
 - case1: scatter-h.html
 - case2: scatter-v.html
 - case3: markLine.html
 
-最终效果篇代码
+最终效果篇代码（可能细节还需完善，实际中）
 
 - 条形图：bar-h.html
 - 柱状图：bar-v.html
 
+### 最后
 
-
-
-
-
-
+有更好思路或想法的，请联系我，非常欢迎找我探讨（渴望 ideal 似 渴望 ✨🌜）。
