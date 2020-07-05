@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <button onclick="isReverseFn()">翻转</button>
+
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="width: 600px;height:600px;"></div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script> -->
+  <script src="../lib/echarts.min.js"></script>
+  <script src="../lib/lodash.4.17.5.js"></script>
+
+  <script type="text/javascript">
+
+    // 借鉴
+    // 1. https://echarts.apache.org/examples/zh/editor.html?c=bar-waterfall
+    // 2. https://echarts.apache.org/examples/zh/editor.html?c=bar-waterfall2
+
+    var isReverse = true;
+    var showLabel = true;
+
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = setOption();
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function isReverseFn () {
+      isReverse = !isReverse;
+      option = setOption();
+      myChart.setOption(option);
+    }
+
+    function setOption() {
+      let option;
+
+      const category = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+      const name = [
+        '上海温度（ °C ）', 
+        '北京温度（ °C ）', 
+      ];
+      const data = [
+        [
+          [-8, 10.3],
+          [-8.6, 8.5],
+          [-10.2, 11.8],
+          [-1.7, 14.2],
+          [-3.6, 23.1],
+          [0, 27.4],
+          [5.0, 23.2],
+          [-6.7, 20.4],
+          [7.5, 26.5],
+          [-1.3, 18.0],
+          [-6.7, 8.4],
+          [-7.0, -4.6]
+        ],
+        [
+          [-9.9, 10.3],
+          [-8.6, 8.5],
+          [-10.2, 11.8],
+          [-1.7, 12.2],
+          [-0.6, 23.1],
+          [3.7, 25.4],
+          [6.0, 26.2],
+          [6.7, 21.4],
+          [3.5, 19.5],
+          [-1.3, 16.0],
+          [-8.7, 9.4],
+          [-9.0, -2.6]
+        ]
+      ]
+
+      // const category = ["北京", "上海", "南京", "天津", "杭州", "苏州"];
+      // const name = ['苹果收获了', '橙子收获了'];
+      // const data = [
+      //   [
+      //     [0, 2900, 'red'],
+      //     [1700, 2900],
+      //     [1400, 1700],
+      //     [1200, 1400],
+      //     [300, 900],
+      //     [0, 300]
+      //   ],
+      //   [
+      //     [3500, 3800, 'lawngreen'],
+      //     [3800, 4200],
+      //     [2430, 3800],
+      //     [2200, 2900],
+      //     [1300, 1400],
+      //     [800, 3000]
+      //   ]
+      // ]
+      
+      let series = [];
+      data.forEach((item, i) => {
+        series = [...series, ...createSeries(item, name[i], showLabel, isReverse)]
+      })
+
+      let yAxis = {
+        type: 'value'
+      }
+
+      let xAxis = {
+        type: 'category',
+        axisLine: {
+          onZero: false
+        },
+        splitLine: {
+          show: false
+        },
+        data: category
+      }
+
+      if (isReverse) {
+        [xAxis, yAxis] = [yAxis, xAxis];
+      }
+
+      option = {
+        title: {
+          text: '城市温度情况',
+          // subtext: 'From ExcelHome',
+          // sublink: 'http://e.weibo.com/1341556070/AjQH99che'
+        },
+        color: ['dodgerblue', 'violet', 'orange'],
+        legend: {
+          data: name
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { // 坐标轴指示器，坐标轴触发有效
+            type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
+          },
+          formatter: function (params) {
+            var html = '';
+            var axisValue = '';
+            params.forEach(item => {
+              axisValue = item.axisValue;
+              const range = item.data.range;
+              html += item.marker + item.name + ': ' + range[0] + ' ~ ' + range[1] + '<br/>';
+            })
+            const {name, data: {range}} = params[0];
+            return axisValue + '<br/>' + html;
+          }
+        },
+        grid: {
+          left: '3%',
+          right: '4%',
+          bottom: '3%',
+          containLabel: true
+        },
+        xAxis: xAxis,
+        yAxis: yAxis,
+        series: series
+      };
+
+      return option;
+    }
+
+    // 轴数据处理
+    function dataFormat (data, name, isReverse) {
+      let min = []; // 区间的最小值, 堆叠，透明
+      let max = []; // 区间的最大值, 堆叠，显示
+      let negative = []; // 负值处理，堆叠，显示负值的部分，max仅显示了正值的部分。特殊情况，区间最小值为负值，最大值为正值。
+      let minLabel = []; // 显示区间的最小值的 label 数据，在 max 上通过 markpoint 实现，以控制 label 颜色值和显示的柱子颜色值一致，并且显示隐藏有效
+      
+      // 对数据排序，后面需要找到整组数据中最小值
+      let sortData = _.cloneDeep(data);
+      sortData.sort((a, b) => a[0] - b[0])
+
+      data.forEach((item, i) => {
+
+        // 取哪个值作为透明底层(从0开始)，[-min, +max]->0不需要透明; [-min, -max]->-max到0填充透明；[+min,+max]->0到+min填充透明
+        min.push(item[1] <= 0 ? item[1] : item[0] <= 0 ? 0 : item[0]);
+        // 主要处理[-min,+max]情况，填充显示-min的部分。其他情况不需要填充，为0。
+        negative.push(item[1] <=0 || item[0] >= 0 ? 0 : item[0]);
+
+        // 横向：coord: [offsetx，y]，等同于 xAxis: offsetx, yAxis: y。其中，offsetx 表示偏移值，y 表示bar的索引。
+        // 竖向：[x, offsety]
+        const coord = isReverse ? [item[0], i] : [i, item[0]];
+        minLabel.push({
+          value: item[0], // 对值进行格式化
+          coord: item[0] || sortData[0][0] ? coord : [], // 当最小值不为0的时候，都要显示
+        })
+
+        max.push({
+          // // 差值作为叠加值，在透明层的数据上叠加。[-min, +max]->0到max,不需要堆叠进行差值计算; [+min, +max]->+max - +min需要计算差值；[-min,-max]->-min - -max需要计算差值
+          value: item[1] <=0 ? item[0] - item[1] : item[0] <= 0 ? item[1] : item[1] - item[0],
+          range: item, // tooltip 显示
+          name, // legend 显示
+          label: {
+            formatter: '' + item[1], // 最终值作为显示值
+          },
+          itemStyle: {
+            color: item[2]
+          }
+        })
+      })
+
+      return {
+        min,
+        max,
+        negative,
+        minLabel
+      }
+    }
+
+    // 生成序列数据
+    function createSeries (arr, name, showLabel, isReverse) {
+      let newSeries = [];
+
+      const {min, max, minLabel, negative} = dataFormat(arr, name, isReverse);
+      
+      const maxPosition = isReverse ? 'right' : 'top';
+      const minPosition = isReverse ? 'left' : 'bottom';
+
+      newSeries = [
+        // 作为堆叠辅助，不显示
+        {
+          type: 'bar',
+          stack: name,
+          tooltip: {
+            show: false
+          },
+          // 透明
+          itemStyle: {
+            barBorderColor: 'rgba(0,0,0,0)',
+            color: 'rgba(0,0,0,0)'
+          },
+          emphasis: {
+            itemStyle: {
+              barBorderColor: 'rgba(0,0,0,0)',
+              color: 'rgba(0,0,0,0)'
+            }
+          },
+          label: {
+            show: false,
+          },
+          data: min
+        },
+        // 当区间[负值，正值]时，用于显示负值的部分
+        {
+          type: 'bar',
+          stack: name,
+          name: name, // 名称和max相同，保证柱子统一颜色
+          tooltip: {
+            show: false,
+          },
+          label: {
+            show: false,
+          },
+          data: negative,
+        },
+        // 用于显示正值的部分
+        {
+          type: 'bar',
+          stack: name,
+          name: name,
+          tooltip: {
+            show: true,
+          },
+          label: {
+            show: showLabel,
+            position: maxPosition,
+          },
+          markPoint: {
+            symbol: 'rect',
+            // 图形上面的小头隐藏
+            symbolSize: 0.000000000000001,
+            label: {
+              show: showLabel,
+              position: minPosition,
+            },
+            data: minLabel
+          },
+          data: max,
+        }
+      ]
+
+      return newSeries;
+    }
+  </script>
+</body>
+
+</html>

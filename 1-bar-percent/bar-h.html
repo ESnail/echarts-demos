@@ -12,6 +12,7 @@
   <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
   <div id="main" style="width: 600px;height:400px;"></div>
 
+  <a href="undefined">ss</a>
   <!-- <img src="./test.svg" alt=""> -->
 
 
@@ -36,17 +37,23 @@
       let title = ['周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周一', '下周二'];
       let data = [200, 170, 240, 244, 200, 220, 210, 20, 30];
 
+      data = [148662376, 91584784, 65593929, 49020476, 49013977]
+
       const len = 5
       title.length = len;
       data.length = len;
 
       function arrPercent(arr) {
-        let res = [0];
-        let newArr = arr.reverse();
+        let res = [];
+        let newArr = [...arr];
+        newArr = newArr.reverse();
         for (let i = 1; i < newArr.length; i++) {
+          
           const rate = newArr[i - 1] / newArr[i] * 100
+          console.log(newArr[i - 1], newArr[i], rate);
           res.push(rate.toFixed(2))
         }
+        res.reverse();
         return res;
       }
 
@@ -55,7 +62,7 @@
         let item = {
           value: 0,
           label: {
-            show: i > 0,
+            show: true,
             formatter: '{a|' + v + '%}',
           }
         }
@@ -88,7 +95,8 @@
           },
           data: title
         }],
-        series: [{
+        series: [
+          {
             name: '利润',
             type: 'bar',
             barCategoryGap: 40,
@@ -106,8 +114,8 @@
             type: 'bar',
             barGap: '-100%',
             label: {
-              position: 'bottom',
-              offset: [50, 0],
+              position: 'top',
+              offset: [41, 0],
               distance: 5,
               formatter: '{a| {c}%}',
               rich: {

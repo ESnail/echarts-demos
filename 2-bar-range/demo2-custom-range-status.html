@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+  <div id="main" style="margin: 30px; padding: 10px; border: 1px solid #ddd; width: 800px;height:400px;"></div>
+
+  <!-- <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script> -->
+  <script src="../lib/echarts.min.js"></script>
+  <script src="../lib/lodash.4.17.5.js"></script>
+
+  <script type="text/javascript">
+    // 借鉴
+    // 1. https://echarts.apache.org/zh/tutorial.html#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B3%BB%E5%88%97
+    // 2. https://echarts.apache.org/examples/zh/editor.html?c=custom-profile
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var option = setOption();
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+
+    function setOption() {
+      let option;
+
+      const originData = [{
+          task: 'task0',
+          startTime: '2018-04-18 01:17:12',
+          endTime: '2018-04-18 01:19:10',
+          status: 0
+        },
+        {
+          task: 'task1',
+          startTime: '2018-04-18 01:18:15',
+          endTime: '2018-04-18 01:19:20',
+          status: 0
+        },
+        {
+          task: 'task2',
+          startTime: '2018-04-18 02:11:32',
+          endTime: '2018-04-18 02:18:50',
+          status: 0
+        },
+        {
+          task: 'task3',
+          startTime: '2018-04-18 02:18:50',
+          endTime: '2018-04-18 03:16:38',
+          status: 0
+        },
+        {
+          task: 'task4',
+          startTime: '2018-04-18 02:19:48',
+          endTime: '2018-04-18 02:21:57',
+          status: 0
+        },
+        {
+          task: 'task5',
+          startTime: '2018-04-18 03:16:38',
+          endTime: '2018-04-18 03:19:38',
+          status: 1
+        },
+        {
+          task: 'task6',
+          startTime: '2018-04-18 03:19:38',
+          endTime: '2018-04-18 03:27:49',
+          status: 0
+        },
+        {
+          task: 'task7',
+          startTime: '2018-04-18 07:29:37',
+          endTime: '2018-04-18 07:33:01',
+          status: 0
+        },
+        {
+          task: 'task8',
+          startTime: '2018-04-18 03:27:49',
+          endTime: '2018-04-18 04:26:05',
+          status: 0
+        },
+        {
+          task: 'task9',
+          startTime: '2018-04-18 04:26:05',
+          endTime: '2018-04-18 06:06:36',
+          status: 0
+        },
+        {
+          task: 'task10',
+          startTime: '2018-04-18 06:06:36',
+          endTime: '2018-04-18 06:15:15',
+          status: 0
+        },
+        {
+          task: 'task11',
+          startTime: '2018-04-18 03:27:49',
+          endTime: '2018-04-18 03:34:50',
+          status: 0
+        },
+      ];
+
+      const values = ['运行成功', '运行失败'];
+      const colors = ['lawngreen', 'red'];
+      
+      let categories = [];
+      var data = [];
+      var labelIsShow = false;
+      var dateSort = _.cloneDeep(originData);
+      // startTime: '2018-04-18 03:27:49' 转换成时间戳 进行排序，方便后面找出最小的时间
+      dateSort.sort((a, b) => (+new Date(a.startTime)) - (+new Date(b.startTime)))
+      
+      originData.forEach((obj, index) => {
+        data.push({
+          name: values[obj.status],
+          category: obj.task, 
+          value: [
+            index,
+            obj.startTime,
+            obj.endTime,
+          ],
+          tooltip: {
+            show: true
+          },
+          label: {
+            show: labelIsShow,
+            position: 'right',
+            color: 'red'
+          },
+          itemStyle: {
+            normal: {
+              color: colors[obj.status]
+            }
+          }
+        })
+
+        data.push({
+          name: values[obj.status],
+          category: obj.task,
+          value: [
+            index,
+            dateSort[0].startTime,
+            obj.startTime,
+          ],
+          label: {
+            show: labelIsShow,
+            position: 'insideRight',
+            color: 'blue'
+          },
+          itemStyle: {
+            normal: {
+              color: 'rgba(0,0,0,0)'
+            }
+          },
+        })
+
+        categories.push(obj.task)
+      });
+
+      function renderItem(params, api, res) {
+
+        var categoryIndex = api.value(0);
+        var start = api.coord([api.value(1), categoryIndex]);
+        var end = api.coord([api.value(2), categoryIndex]);
+        var height = api.size([0, 1])[1] * 0.6;
+
+        var rectShape = echarts.graphic.clipRectByRect({
+          x: start[0],
+          y: start[1] - height / 2,
+          width: end[0] - start[0],
+          height
+        }, {
+          x: params.coordSys.x,
+          y: params.coordSys.y,
+          width: params.coordSys.width,
+          height: params.coordSys.height
+        });
+
+        const result = rectShape && {
+          type: 'rect',
+          shape: rectShape,
+          style: api.style(),
+        };
+
+        return result
+      }
+
+      option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {  
+              type: 'shadow'
+          },
+          formatter: function (params) {
+            var html = '';
+            params.forEach(item => {
+              if (item && item && item.data && item.data.tooltip && item.data.tooltip.show) {
+                html += item.data?.category + '<br/>' + item.marker + item.name + ': ' + item.value[1] + ' ~ ' + item.value[2];
+              } 
+            });
+            return html;
+          }
+        },
+        title: {
+          text: 'Profile',
+          left: 'center'
+        },
+        xAxis: {
+          boundaryGap: false,
+          type: 'time'
+        },
+        yAxis: {
+          data: categories
+        },
+        series: [{
+          type: 'custom',
+          renderItem: renderItem,
+          itemStyle: {
+            normal: {
+              opacity: 0.8
+            }
+          },
+          encode: {
+            x: [1, 2],
+            y: 0,
+            label: 2,
+          },
+          data: data
+        }]
+      };
+
+
+      return option;
+    }
+  </script>
+</body>
+
+</html>
